@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Valentine's Day - Dafne Janette</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    .no-button { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: absolute; z-index: 20; }
+    .hidden { display: none; }
+    #card { position: relative; z-index: 10; transition: all 0.5s ease; }
+
+    .floating-book {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.6;
+      animation: float 10s infinite linear;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* Clase para la escala del botón SI */
+    .scale-up { transform: scale(var(--scale, 1)); transition: transform 0.2s ease; }
+  </style>
+</head>
+<body class="bg-pink-100 flex items-center justify-center h-screen overflow-hidden relative">
+
+<div id="book-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+
+<div id="card" class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full mx-4 transform scale-100">
+  <div id="step1">
+    <img src="http://25.media.tumblr.com/tumblr_ljct0p2eTU1qb4ldxo1_500.gif" class="w-48 mx-auto mb-4 rounded-lg">
+    <h1 class="text-2xl font-bold text-pink-600 mb-6 px-2">¿Quieres ser mi San Valentín, Dafne Janette? ❤️</h1>
+    <div class="flex justify-center gap-4 relative h-16 items-center">
+      <button id="si" class="scale-up bg-pink-500 hover:bg-pink-600 text-white px-8 py-2 rounded-lg font-bold shadow-lg">SÍ</button>
+      <button id="no" class="no-button bg-gray-400 text-white px-6 py-2 rounded-lg font-bold">No</button>
+    </div>
+  </div>
+
+  <div id="step2" class="hidden">
+    <img src="/img/fotoamor.jpeg" class="w-full rounded-lg mb-4 shadow-md" alt="Nuestra foto">
+    <h3 class="text-xl font-semibold text-gray-700">¡Tomaste la mejor decisión! 😌</h3>
+    <h2 class="text-3xl font-black text-pink-600 mt-4 leading-tight">TE AMO <br> hoy y siempre, <br> Dafne Janette 😍🐧♾️💖</h2>
+  </div>
+</div>
+
+<script>
+  const btnNo = document.querySelector('#no');
+  const btnSi = document.querySelector('#si');
+  const step1 = document.querySelector('#step1');
+  const step2 = document.querySelector('#step2');
+  const card = document.querySelector('#card');
+  const bookContainer = document.getElementById('book-container');
+
+  let books = ['📚', '📖', '📕', '📔', '📙', '✨'];
+  let siScale = 1;
+
+  function createBook() {
+    const book = document.createElement('div');
+    book.className = 'floating-book';
+    book.innerText = books[Math.floor(Math.random() * books.length)];
+    book.style.left = Math.random() * 100 + 'vw';
+    book.style.animationDuration = (Math.random() * 5 + 5) + 's';
+    book.style.fontSize = (Math.random() * 20 + 20) + 'px';
+    bookContainer.appendChild(book);
+    setTimeout(() => { book.remove(); }, 10000);
+  }
+
+  setInterval(createBook, 500);
+
+  // Botón NO huye y hace que el SI crezca
+  btnNo.addEventListener('mouseover', () => {
+    const x = Math.random() * (window.innerWidth - btnNo.offsetWidth);
+    const y = Math.random() * (window.innerHeight - btnNo.offsetHeight);
+    btnNo.style.left = `${x}px`;
+    btnNo.style.top = `${y}px`;
+
+    // El botón SI crece un 15% cada vez
+    siScale += 0.15;
+    btnSi.style.setProperty('--scale', siScale);
+  });
+
+  btnSi.addEventListener('click', async () => {
+    // Lanzar confeti Pro
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ff0000', '#ff69b4', '#ffffff']
+    });
+
+    fetch('https://formspree.io/f/xwvnpvqk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Dafne Janette dijo que SÍ! ❤️' })
+    }).catch(() => {});
+
+    // Animación de salida de la tarjeta
+    card.style.transform = 'scale(0)';
+
+    setTimeout(() => {
+      step1.classList.add('hidden');
+      step2.classList.remove('hidden');
+      card.style.transform = 'scale(1)';
+      books = ['❤️', '💖', '🐧', '♾️'];
+    }, 500);
+  });
+</script>
+</body>
+</html>
